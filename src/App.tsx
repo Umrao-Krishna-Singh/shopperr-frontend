@@ -1,31 +1,26 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Route,
+  createRoutesFromElements,
+} from "react-router-dom";
+import Main from "./layouts/mainLayout";
+import Login from "./pages/login";
 
-function App() {
-  const [count, setCount] = useState(0);
-  const [dataFromApi, setDataFromApi] = useState("");
-  const [isLoading, setLoading] = useState(true);
+const router = createBrowserRouter(
+  createRoutesFromElements(
+    <Route path="/" element={<Main />}>
+      <Route index element={<Login />} />
+    </Route>,
+  ),
+);
 
-  useEffect(() => {
-    const getData = async () => {
-      try {
-        const res = await axios.get("http://localhost:3000/myroute");
-        setDataFromApi(res?.data.toString());
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    getData();
-  }, []);
-
+const App = () => {
   return (
     <>
-      <p>page loaded</p>
-      <p>{dataFromApi}</p>
+      <RouterProvider router={router} />
     </>
   );
-}
+};
 
 export default App;
