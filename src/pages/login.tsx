@@ -1,30 +1,48 @@
 import { useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import axios from "axios";
 
 const Login = () => {
   const [data, setData] = useState({ title: "" });
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
 
-  const sendData = async (val: { title: string }) => {
-    try {
-      const check = await axios.post("http://localhost:3000/myroute", val);
-      console.log(check);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // const sendData = async (val: { title: string }) => {
+  //   try {
+  //     const check = await axios.post("http://localhost:3000/myroute", val);
+  //     console.log(check);
+  //   } catch (error) {
+  //     console.log(error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  const sendData = useMutation({
+    mutationFn: async (val: { title: string }) => {
+      return await axios.post("http://localhost:3000/myroute", val);
+    },
+  });
+
+  const fetchData = useQuery({
+    queryKey: ["getMyRoute"],
+    queryFn: async () => {
+      return await axios.get("http://localhost:3000/myroute");
+    },
+  });
 
   const submitFunc = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    await sendData(data);
+    sendData.mutate(data);
     setData({ title: "" });
   };
+
+  if (fetchData.isLoading) return <div>Loading...</div>;
+  if (fetchData.isError) return <div>Error... {fetchData.error.message}</div>;
 
   return (
     <>
       <div>Login Page</div>
+      <div>{fetchData.data ? fetchData.data.data : ""}</div>
       <section className="bg-indigo-50">
         <div className="container m-auto max-w-2xl py-24">
           <div className="bg-white px-6 py-8 mb-4 shadow-md rounded-md border m-4 md:m-0">
